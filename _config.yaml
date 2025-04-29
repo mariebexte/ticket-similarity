@@ -1,0 +1,28 @@
+credentials:
+  usernames:
+    letmein:
+      email: someone@fernuni-hagen.de
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Letme In
+      password: here # Will be hashed automatically
+    zesch:
+      email: torsten.zesch@fernuni-hagen.de
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Torsten Zesch
+      password: zesch # Will be hashed automatically
+    bexte:
+      email: marie.bexte@fernuni-hagen.de
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Marie Bexte
+      password: bexte # Will be hashed automatically
+cookie:
+  expiry_days: 30
+  key: ticket_demo # Must be string
+  name: ticket_demo_cookie
+pre-authorized:
+  emails:
+  - torsten.zesch@fernuni-hagen.de
+  - marie.bexte@fernuni-hagen.de
