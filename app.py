@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from random import randint
+from sentence_transformers import SentenceTransformer
 
 
 in_file = 'embedded_tickets.pkl'
@@ -10,6 +11,14 @@ st.set_page_config(layout="wide")
 
 colum_name_map = {'Titel': 'Title', 'Beschreibung': 'Description'}
 
+
+@st.cache_resource
+def get_model(model_name='all-mpnet-base-v2'):
+    
+    return SentenceTransformer(model_name)
+
+
+@st.cache_data
 def get_data(filename):
 
     return pd.read_pickle(filename)
@@ -37,20 +46,52 @@ def get_solution_text(df, ticket_number, suffix=''):
     return text
 
 
+# def get_similar_tickets(df, ticket_number, number_of_similar_tickets, sim_col='Title'):
+
+#     # Use Title to determine similar tickets
+#     df_ticket = pd.DataFrame(df.iloc[ticket_number]).T
+#     print(df_ticket)
+#     df_rest = df.drop(ticket_number)
+
+#     df_cross = pd.merge(left=df_ticket, right=df_rest, how='cross', suffixes=['_ticket', '_ref'])
+#     print(df_cross.columns)
+#     df_cross['sim'] = df_cross.apply(lambda row: row[sim_col+'embedded_ticket'] @ row[sim_col+'embedded_ref'], axis=1)
+
+
+#     # Get n most similar
+#     st.session_state['similar_tickets'] = df_cross.nlargest(n=number_of_similar_tickets, columns='sim')
+
+
+def set_similar_tickets(df_ticket, df_ref, number_of_similar_tickets, sim_col):
+
+    df_cross = pd.merge(left=df_ticket, right=df_ref, how='cross', suffixes=['_ticket', '_ref'])
+    df_cross['sim'] = df_cross.apply(lambda row: row[sim_col+'embedded_ticket'] @ row[sim_col+'embedded_ref'], axis=1)
+
+    # Get n most similar
+    st.session_state['similar_tickets'] = df_cross.nlargest(n=number_of_similar_tickets, columns='sim')
+
+
 def get_similar_tickets(df, ticket_number, number_of_similar_tickets, sim_col='Title'):
 
     # Use Title to determine similar tickets
     df_ticket = pd.DataFrame(df.iloc[ticket_number]).T
-    print(df_ticket)
-    df_rest = df.drop(ticket_number)
+    df_ref = df.drop(ticket_number)
 
-    df_cross = pd.merge(left=df_ticket, right=df_rest, how='cross', suffixes=['_ticket', '_ref'])
-    print(df_cross.columns)
-    df_cross['sim'] = df_cross.apply(lambda row: row[sim_col+'embedded_ticket'] @ row[sim_col+'embedded_ref'], axis=1)
+    # Check if ticket text/title was altered
+    current_title = st.session_state['current_ticket_title']
+    current_description = st.session_state['current_ticket_description']
 
+    if not df_ticket.iloc[0]['Title'] == current_title:
+        df_ticket.loc[:, 'Title'] = current_title
+        df_ticket['Titleembedded'] = df_ticket['Title'].apply(model.encode)
+        print('Modified title')
 
-    # Get n most similar
-    st.session_state['similar_tickets'] = df_cross.nlargest(n=number_of_similar_tickets, columns='sim')
+    if not df_ticket.iloc[0]['Description'] == current_description:
+        df_ticket.loc[:, 'Description'] = current_description
+        df_ticket['Descriptionembedded'] = df_ticket['Description'].apply(model.encode)
+        print('Modified description')
+
+    set_similar_tickets(df_ticket=df_ticket, df_ref=df_ref, number_of_similar_tickets=number_of_similar_tickets, sim_col=sim_col)
 
 
 def pick_random_ticket(df):
@@ -65,6 +106,7 @@ def reset_similar_tickets():
 
 
 df = get_data(filename=in_file)
+model = get_model()
 
 if 'number_of_similar_tickets' not in st.session_state:
 
@@ -86,8 +128,8 @@ with col1:
     with col1_2:
         st.button('Neues zufälliges Ticket', on_click=pick_random_ticket, args=(df, ))
 
-    st.text_input(label='Titel', value=get_ticket_title(df=df, ticket_number=st.session_state['current_ticket_number']))
-    st.text_area(label='Beschreibung', value=get_ticket_text(df=df, ticket_number=st.session_state['current_ticket_number'], include_title=False), height=600)
+    st.text_input(label='Titel', value=get_ticket_title(df=df, ticket_number=st.session_state['current_ticket_number']), key='current_ticket_title')
+    st.text_area(label='Beschreibung', value=get_ticket_text(df=df, ticket_number=st.session_state['current_ticket_number'], include_title=False), height=600, key='current_ticket_description')
 
 with col2:
 
@@ -108,6 +150,7 @@ with col2:
     similar_tickets = st.session_state['similar_tickets']
     for t_num in range(len(similar_tickets)):
         st.divider()
+        # st.divider()
         col2_1, col2_2 = col2.columns([1,1])
 
         with col2_1:
@@ -119,4 +162,3 @@ with col2:
 
             st.write('*Lösung*')
             st.write(get_solution_text(df=similar_tickets, ticket_number=t_num, suffix='_ref'))
-    
