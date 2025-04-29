@@ -157,7 +157,7 @@ print(df.columns)
 # for key, value in states.items():
 #     print(key+','+str(value))
 
-for col in ['Description', 'Solution', 'Comments\n']:
+for col in ['Title', 'Description', 'Solution', 'Comments\n']:
 
     df[col] = df[col].apply(drop_safelinks)
     # df[col] = df[col].apply(strip_greeting)

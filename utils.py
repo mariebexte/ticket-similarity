@@ -14,7 +14,10 @@ def get_model(model_name='all-mpnet-base-v2'):
 @st.cache_data
 def get_data(filename):
 
-    return pd.read_pickle(filename)
+    df = pd.read_pickle(filename)
+    df = df.fillna('-')
+    df['Solution'] = df['Solution'].replace({'nan': '/'})
+    return df
 
 
 def get_ticket_title(df, ticket_number, suffix=''):
