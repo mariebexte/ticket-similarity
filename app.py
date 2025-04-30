@@ -9,7 +9,7 @@ from yaml.loader import SafeLoader
 from utils import *
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Ticket Similarity")
 
 def show_app():
 
@@ -77,7 +77,7 @@ def show_app():
 
             with col2_1:
                 similarity = round(similar_tickets.iloc[t_num]['sim'], 3)
-                st.write('Similarity: ' + get_html_confidence(similarity), unsafe_allow_html=True)
+                st.write('Ähnlichkeit: ' + get_html_confidence(similarity), unsafe_allow_html=True)
                 st.write(get_ticket_text(df=similar_tickets, ticket_number=t_num, suffix='_ref'))
         
             with col2_2:
@@ -116,5 +116,5 @@ elif st.session_state["authentication_status"] is False:
     st.error('Username/password is incorrect')
 
 elif st.session_state["authentication_status"] is None:
-    
+
     st.warning('Please enter your username and password')
