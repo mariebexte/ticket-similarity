@@ -3,14 +3,13 @@ import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 
-from random import randint
+from random import randint, random
 from sentence_transformers import SentenceTransformer
 from yaml.loader import SafeLoader
 from utils import *
 
 
 st.set_page_config(layout="wide")
-
 
 def show_app():
 
@@ -77,8 +76,8 @@ def show_app():
             col2_1, col2_2 = col2.columns([1,1])
 
             with col2_1:
-
-                st.markdown('*Anfrage (Ähnlichkeit: ' + str(round(similar_tickets.iloc[t_num]['sim'], 3))+')*')
+                similarity = round(similar_tickets.iloc[t_num]['sim'], 3)
+                st.write('Similarity: ' + get_html_confidence(similarity), unsafe_allow_html=True)
                 st.write(get_ticket_text(df=similar_tickets, ticket_number=t_num, suffix='_ref'))
         
             with col2_2:
