@@ -9,16 +9,21 @@ from yaml.loader import SafeLoader
 from utils import *
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Ticket Similarity")
 
 
 def show_app():
+
 
     in_file = 'embedded_tickets.pkl'
     colum_name_map = {'Titel': 'Title', 'Beschreibung': 'Description'}
 
     df = get_data(filename=in_file)
     model = get_model()
+
+    if 'similarity_column' not in st.session_state:
+
+        st.session_state['similarity_column'] = 'Beschreibung'
 
     if 'number_of_similar_tickets' not in st.session_state:
 
@@ -33,28 +38,13 @@ def show_app():
     with col1:
 
         st.subheader('Aktuelles Ticket')
-        st.divider()
-
-        col1_1, col1_2 = col1.columns([1,1], vertical_alignment='bottom')
-
-        with col1_1:
-
-            st.number_input(label='Ticketnummer', min_value=0, max_value=len(df), key='current_ticket_number', on_change=reset_similar_tickets)
-        
-        with col1_2:
-
-            st.button('Neues zufälliges Ticket', on_click=pick_random_ticket, args=(df, ))
-
-        st.text_input(label='Titel', value=get_ticket_title(df=df, ticket_number=st.session_state['current_ticket_number']), key='current_ticket_title')
-        st.text_area(label='Beschreibung', value=get_ticket_text(df=df, ticket_number=st.session_state['current_ticket_number'], include_title=False), height=600, key='current_ticket_description')
-
+        st.text_area(label='Aktuelles Ticket', label_visibility='collapsed', on_change=get_similar_tickets, args=(model, df, st.session_state['number_of_similar_tickets'], colum_name_map[st.session_state['similarity_column']]), placeholder="Kopieren Sie das aktuell bearbeitete Ticket in dieses Feld.\n\nAnschließend können Sie mit Klick auf 'Ähnliche Tickets finden' (oben rechts) die Suche starten.\n\nAlternativ können Sie diesen Prozess auch mit einem Klick außerhalb dieses Feldes starten.", height=600, key='current_ticket_description')
 
     with col2:
 
         st.subheader('Ähnliche Tickets')
-        st.divider()
 
-        col2_1, col2_2, col2_3 = col2.columns([1,1,1], vertical_alignment='bottom')
+        col2_1, col2_2 = col2.columns([1,1], vertical_alignment='bottom')
         
         with col2_1:
 
@@ -62,11 +52,7 @@ def show_app():
         
         with col2_2:
 
-            st.selectbox('Ähnlichkeit', ['Titel', 'Beschreibung'], key='similarity_column')
-
-        with col2_3:
-            
-            st.button('Ähnliche Tickets finden', on_click=get_similar_tickets, args=(model, df, st.session_state['current_ticket_number'], st.session_state['number_of_similar_tickets'], colum_name_map[st.session_state['similarity_column']]))
+            st.button('Ähnliche Tickets finden', on_click=get_similar_tickets, args=(model, df, st.session_state['number_of_similar_tickets'], colum_name_map[st.session_state['similarity_column']]))
 
 
         similar_tickets = st.session_state['similar_tickets']
@@ -78,7 +64,8 @@ def show_app():
 
             with col2_1:
 
-                st.markdown('*Anfrage (Ähnlichkeit: ' + str(round(similar_tickets.iloc[t_num]['sim'], 3))+')*')
+                similarity = round(similar_tickets.iloc[t_num]['sim'], 3)
+                st.write('Ticket Nr. ' + similar_tickets.iloc[t_num]['TicketNo_ref'] + ' | Ähnlichkeit: ' + str(similarity))
                 st.write(get_ticket_text(df=similar_tickets, ticket_number=t_num, suffix='_ref'))
         
             with col2_2:
@@ -92,7 +79,7 @@ with open('_config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # Pre-hashing all plain text passwords once
-# stauth.Hasher.hash_passwords(config['credentials'])
+stauth.Hasher.hash_passwords(config['credentials'])
 
 authenticator = stauth.Authenticate(
     config['credentials'],

@@ -54,27 +54,38 @@ def set_similar_tickets(df_ticket, df_ref, number_of_similar_tickets, sim_col):
     st.session_state['similar_tickets'] = df_cross.nlargest(n=number_of_similar_tickets, columns='sim')
 
 
-def get_similar_tickets(model, df, ticket_number, number_of_similar_tickets, sim_col='Title'):
+# def get_similar_tickets(model, df, ticket_number, number_of_similar_tickets, sim_col='Title'):
+
+#     # Use Title to determine similar tickets
+#     df_ticket = pd.DataFrame(df.iloc[ticket_number]).T
+#     df_ref = df.drop(ticket_number)
+
+#     # Check if ticket text/title was altered
+#     current_title = st.session_state['current_ticket_title']
+#     current_description = st.session_state['current_ticket_description']
+
+#     if not df_ticket.iloc[0]['Title'] == current_title:
+
+#         df_ticket.loc[:, 'Title'] = current_title
+#         df_ticket['Titleembedded'] = df_ticket['Title'].apply(model.encode)
+#         print('Modified title')
+
+#     if not df_ticket.iloc[0]['Description'] == current_description:
+
+#         df_ticket.loc[:, 'Description'] = current_description
+#         df_ticket['Descriptionembedded'] = df_ticket['Description'].apply(model.encode)
+#         print('Modified description')
+
+#     set_similar_tickets(df_ticket=df_ticket, df_ref=df_ref, number_of_similar_tickets=number_of_similar_tickets, sim_col=sim_col)
+
+
+def get_similar_tickets(model, df, number_of_similar_tickets, sim_col='Title'):
 
     # Use Title to determine similar tickets
-    df_ticket = pd.DataFrame(df.iloc[ticket_number]).T
-    df_ref = df.drop(ticket_number)
-
-    # Check if ticket text/title was altered
-    current_title = st.session_state['current_ticket_title']
-    current_description = st.session_state['current_ticket_description']
-
-    if not df_ticket.iloc[0]['Title'] == current_title:
-
-        df_ticket.loc[:, 'Title'] = current_title
-        df_ticket['Titleembedded'] = df_ticket['Title'].apply(model.encode)
-        print('Modified title')
-
-    if not df_ticket.iloc[0]['Description'] == current_description:
-
-        df_ticket.loc[:, 'Description'] = current_description
-        df_ticket['Descriptionembedded'] = df_ticket['Description'].apply(model.encode)
-        print('Modified description')
+    df_ticket = pd.DataFrame(columns=df.columns)
+    df_ticket.loc[0, 'Description'] = st.session_state['current_ticket_description']
+    df_ticket['Descriptionembedded'] = df_ticket['Description'].apply(model.encode)
+    df_ref = df
 
     set_similar_tickets(df_ticket=df_ticket, df_ref=df_ref, number_of_similar_tickets=number_of_similar_tickets, sim_col=sim_col)
 

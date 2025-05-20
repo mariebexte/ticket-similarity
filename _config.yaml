@@ -6,6 +6,12 @@ credentials:
       logged_in: False # Will be managed automatically
       name: Letme In
       password: here # Will be hashed automatically
+    test-user:
+      email: someone@fernuni-hagen.de
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Test User
+      password: ticket-suche # Will be hashed automatically
     zesch:
       email: torsten.zesch@fernuni-hagen.de
       failed_login_attempts: 0 # Will be managed automatically
