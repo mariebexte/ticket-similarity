@@ -99,3 +99,50 @@ def pick_random_ticket(df):
 def reset_similar_tickets():
 
     st.session_state['similar_tickets'] = pd.DataFrame()
+
+def get_html_confidence(value):
+
+    r,g,b = rgb_from_prob(value=value)
+    # r,g,b = probability_to_rgb(value)
+    underline = f"3px solid rgb({r}, {g}, {b})"
+    html = f"<span style='border-bottom: {underline}'>{value:.3f}</span>"
+    # html = f"<span style='border-bottom: {underline}'>{round(value, 3)}</span>"
+    return html
+
+def rgb_from_prob(value, minimum=0.4, maximum=1):
+    
+    '''
+    Based on: https://stackoverflow.com/a/20792531/3450793
+    ''' 
+    minimum, maximum = float(minimum), float(maximum)
+    ratio = 2 * (value-minimum) / (maximum - minimum)
+    r = int(max(0, 255*(1 - ratio)))
+    g = int(max(0, 255*(ratio - 1)))
+    b = 0
+    # b = 255 - g - r
+	
+    return (r, g, b)
+
+
+def probability_to_rgb(probability):
+    """
+    Convert a probability value (0-1) to an RGB color.
+    
+    Args:
+        probability (float): A value between 0 and 1 representing probability
+        
+    Returns:
+        tuple: RGB color values as a tuple of integers (0-255)
+    """
+    # Ensure probability is within valid range
+    probability = max(0, min(1, probability))
+    
+    # Basic implementation: use a color gradient from red (low probability) to green (high probability)
+    # Red component decreases as probability increases
+    red = int(255 * (1 - probability))
+    # Green component increases as probability increases
+    green = int(255 * probability)
+    # Blue remains 0
+    blue = 0
+    
+    return (red, green, blue)

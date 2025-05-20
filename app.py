@@ -3,14 +3,13 @@ import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 
-from random import randint
+from random import randint, random
 from sentence_transformers import SentenceTransformer
 from yaml.loader import SafeLoader
 from utils import *
 
 
 st.set_page_config(layout="wide", page_title="Ticket Similarity")
-
 
 def show_app():
 
@@ -104,5 +103,5 @@ elif st.session_state["authentication_status"] is False:
     st.error('Username/password is incorrect')
 
 elif st.session_state["authentication_status"] is None:
-    
+
     st.warning('Please enter your username and password')
