@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import datetime
 
 from sentence_transformers import SentenceTransformer
 from random import randint
@@ -17,6 +18,18 @@ def get_data(filename):
     df = pd.read_pickle(filename)
     df = df.fillna('-')
     df['Solution'] = df['Solution'].replace({'nan': '/'})
+    df['CreatedDateTime'] = df['CreatedDateTime'].apply(pd.to_datetime)
+
+    now = datetime.datetime.now()
+    cutoff = now - datetime.timedelta(days=364)
+
+    df_removed = df[df['CreatedDateTime'] < cutoff]
+
+    df_dropped = df[df['CreatedDateTime'] < cutoff]
+    df = df[df['CreatedDateTime'] >= cutoff]
+
+    print('Dropped', len(df_dropped), 'tickets because they were older than a year!')
+
     return df
 
 

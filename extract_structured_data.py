@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-data_path_source = '/Users/mariebexte/Datasets/Ticket_Similarity/txpe_ki_cleaned.txt'
+data_path_source = '/Users/mariebexte/Datasets/Ticket_Similarity/txpe_ki_2.txt'
 data_path_target = '/Users/mariebexte/Datasets/Ticket_Similarity/structured_data.csv'
 
 
