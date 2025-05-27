@@ -23,8 +23,6 @@ def get_data(filename):
     now = datetime.datetime.now()
     cutoff = now - datetime.timedelta(days=364)
 
-    df_removed = df[df['CreatedDateTime'] < cutoff]
-
     df_dropped = df[df['CreatedDateTime'] < cutoff]
     df = df[df['CreatedDateTime'] >= cutoff]
 
